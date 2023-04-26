@@ -1,0 +1,3 @@
+/home/yihua/c++/Address-Book-System/cmake-build-debug/CMakeFiles/Address_Book_System.dir
+/home/yihua/c++/Address-Book-System/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/yihua/c++/Address-Book-System/cmake-build-debug/CMakeFiles/rebuild_cache.dir

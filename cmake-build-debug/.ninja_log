@@ -1,0 +1,5 @@
+# ninja log v5
+254	312	1682436895219487630	Address_Book_System	aa28ef5e1cf608fb
+1	28	1682519471035998770	build.ninja	da0ed30d7c23dd37
+1	379	1682436854243912982	CMakeFiles/Address_Book_System.dir/src/BPTree.cpp.o	818f32ce54399c92
+1	254	1682436895163488188	CMakeFiles/Address_Book_System.dir/src/main.cpp.o	134e81ac97ac663d
