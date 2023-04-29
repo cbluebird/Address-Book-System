@@ -7,14 +7,23 @@ include_directories(.)
 
 add_executable(Address_Book_System
         src/main.cpp
-        src/BPTree.cpp
-        include/BPTree.h
-        include/BufferPoolManager.h
-        include/Page.h
-        include/File.h
-        include/BPlusTree.h
-        include/BPlusTreePage.h
-        src/BufferPoolManager.cpp
-        src/BPlusTree.cpp
+
+        src/include/storage/Page.h
+        src/include/buffer/BufferPoolManager.h
+        src/include/storage/Node.h
+        src/include/storage/BPlusTree.h
+        src/include/executor/Table.h
+        src/data/User.h
+
+        src/storage/Page.cpp
+        src/buffer/BufferPoolManager.cpp
+        src/storage/Node.cpp
+        src/storage/BPlusTree.cpp
+        src/Iterator/Iterator.cpp
+        src/data/User.cpp
+        src/include/disk/File.h
+        src/disk/File.cpp
+        src/executor/Table.cpp
+
         LICENSE
         README.md)

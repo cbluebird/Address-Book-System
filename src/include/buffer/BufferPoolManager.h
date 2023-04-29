@@ -1,14 +1,16 @@
 //
-// Created by crk on 23-4-26.
+// Created by crk on 23-4-29.
 //
 
 #ifndef ADDRESS_BOOK_SYSTEM_BUFFERPOOLMANAGER_H
 #define ADDRESS_BOOK_SYSTEM_BUFFERPOOLMANAGER_H
 
-#include "../include/Page.h"
 #include <mutex>
 #include <unordered_map>
 #include <list>
+
+#include "src/include/storage/Page.h"
+#include "src/storage/Page.cpp"
 
 using page_id_type=int;
 using frame_id_t=int;
@@ -16,13 +18,16 @@ using frame_id_t=int;
 //内部实现了一个LRU的replacer,同时对Page的一个并发控制
 template<typename ValueType,typename KeyType>
 class BufferPoolManager {
+public:
     BufferPoolManager();
     ~BufferPoolManager(){delete []pages;};
-    Page<ValueType,KeyType> *NewPage(page_id_type *page_id);
-    Page<ValueType,KeyType>* FetchPage(page_id_type page_id);
-    bool UnpinPage(page_id_type page_id, bool is_dirty);
-private:
 
+    Page<ValueType,KeyType>* FetchPage(page_id_type page_id);
+    bool DeletePage(page_id_type page_id);
+    bool UnpinPage(page_id_type page_id, bool is_dirty);
+    Page<ValueType,KeyType> *NewPage(page_id_type *page_id);
+
+private:
     bool find_replace(frame_id_t *frame_id);
     std::mutex latch;
     const int capacity = 1000;

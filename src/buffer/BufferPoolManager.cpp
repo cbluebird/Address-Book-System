@@ -1,8 +1,8 @@
 //
-// Created by crk on 23-4-26.
+// Created by crk on 23-4-29.
 //
 
-#include "include/BufferPoolManager.h"
+#include "src/include/buffer/BufferPoolManager.h"
 
 template<typename ValueType,typename KeyType>
 bool BufferPoolManager<ValueType,KeyType>::Victim(frame_id_t *frame_id) {
@@ -26,20 +26,18 @@ bool BufferPoolManager<ValueType,KeyType>::Victim(frame_id_t *frame_id) {
 template<typename ValueType,typename KeyType>
 void BufferPoolManager<ValueType,KeyType>::Pin(frame_id_t frame_id) {
     // 被引用的frame 不能出现在lru list中
-    latch.lock();
 
     if (lruMap.count(frame_id) != 0) {
         lru_list.erase(lruMap[frame_id]);
         lruMap.erase(frame_id);
     }
 
-    latch.unlock();
 }
 
 template<typename ValueType,typename KeyType>
 void BufferPoolManager<ValueType,KeyType>::Unpin(frame_id_t frame_id) {
     // 加入lru list中
-    latch.lock();
+    //latch.lock();
     if (lruMap.count(frame_id) != 0) {
         latch.unlock();
         return;
@@ -54,7 +52,7 @@ void BufferPoolManager<ValueType,KeyType>::Unpin(frame_id_t frame_id) {
     // insert
     lru_list.push_front(frame_id);
     lruMap[frame_id] = lru_list.begin();
-    latch.unlock();
+    //latch.unlock();
 }
 
 template<typename ValueType,typename KeyType>
@@ -72,7 +70,7 @@ bool BufferPoolManager<ValueType,KeyType>::find_replace(frame_id_t *frame_id) {
         free_list.pop_front();
         return true;
     }
-     //else we need to find a replace page
+    //else we need to find a replace page
     if (Victim(frame_id)) {
         // Remove entry from page_table
         int replace_frame_id = -1;
@@ -87,11 +85,11 @@ bool BufferPoolManager<ValueType,KeyType>::find_replace(frame_id_t *frame_id) {
         if (replace_frame_id != -1) {
             Page<ValueType,KeyType> *replace_page = &pages[*frame_id];
 
-             //If dirty, flush to disk
+            //If dirty, flush to disk
             if (replace_page->is_dirty) {
                 //char *data = pages[page_table[replace_page->page_id]].data_;
                 //disk_manager_->WritePage(replace_page->page_id, data);
-                replace_page->setPinCount(0) ;  // Reset pin_count
+                replace_page->pin_count=0 ;  // Reset pin_count
             }
             page_table.erase(replace_page->page_id);
         }
@@ -107,10 +105,10 @@ Page<ValueType,KeyType> *BufferPoolManager<ValueType,KeyType>::NewPage(page_id_t
     latch.lock();
     // 0.
 
- //   page_id_type new_page_id = disk_manager_->AllocatePage();
+    //   page_id_type new_page_id = disk_manager_->AllocatePage();
     // 1.
     bool is_all = true;
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < capacity; i++) {
         if (pages[i].pin_count == 0) {
             is_all = false;
             break;
@@ -152,6 +150,10 @@ Page<ValueType,KeyType> *BufferPoolManager<ValueType,KeyType>::NewPage(page_id_t
 template<typename ValueType,typename KeyType>
 Page<ValueType,KeyType> *BufferPoolManager<ValueType,KeyType>::FetchPage(page_id_type page_id) {
     latch.lock();
+    if(page_id==-1){
+        latch.unlock();
+        return nullptr;
+    }
     std::unordered_map<page_id_type, frame_id_t>::iterator it = page_table.find(page_id);
     // 1.1 P exists
     if (it != page_table.end()) {
@@ -172,8 +174,8 @@ Page<ValueType,KeyType> *BufferPoolManager<ValueType,KeyType>::FetchPage(page_id
     }
     Page<ValueType,KeyType> *replacePage = &pages[replace_fid];
     // 2. write it back to the disk
-    if (replacePage->getIsDirty()) {
- //       disk_manager_->WritePage(replacePage->page_id_, replacePage->data_);
+    if (replacePage->is_dirty) {
+        //       disk_manager_->WritePage(replacePage->page_id_, replacePage->data_);
     }
     // 3
     page_table.erase(replacePage->page_id);
@@ -182,7 +184,7 @@ Page<ValueType,KeyType> *BufferPoolManager<ValueType,KeyType>::FetchPage(page_id
     page_table[page_id] = replace_fid;
     // 4. update replacePage info
     Page<ValueType,KeyType> *newPage = replacePage;
- //   disk_manager_->ReadPage(page_id, newPage->data_);
+    //   disk_manager_->ReadPage(page_id, newPage->data_);
     newPage->page_id = page_id;
     newPage->pin_count++;
     newPage->is_dirty= false;
@@ -216,6 +218,38 @@ bool BufferPoolManager<ValueType,KeyType>::UnpinPage(page_id_type page_id, bool 
     if (unpinned_page->pin_count == 0) {
         Unpin(unpinned_Fid);
     }
+    latch.unlock();
+    return true;
+}
+
+template<typename ValueType, typename KeyType>
+bool BufferPoolManager<ValueType, KeyType>::DeletePage(page_id_type page_id) {
+    latch.lock();
+    if(page_id==-1){
+        latch.unlock();
+        return false;
+    }
+    // 1.
+    if (page_table.find(page_id) == page_table.end()) {
+        latch.unlock();
+        return true;
+    }
+    // 2.
+    frame_id_t frame_id = page_table[page_id];
+    Page<ValueType,KeyType> *page = &pages[frame_id];
+    if (page->pin_count > 0) {
+        latch.unlock();
+        return false;
+    }
+    // delete in disk in here
+    page_table.erase(page_id);
+    // reset metadata
+    page->is_dirty = false;
+    page->pin_count = 0;
+    page->page_id = -1;
+    // return it to the free list
+
+    free_list.push_back(frame_id);
     latch.unlock();
     return true;
 }
