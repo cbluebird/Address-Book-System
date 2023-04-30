@@ -8,21 +8,41 @@
 #include<string>
 
 class User {
-public:
-    User(){}
-    User(std::string name_,std::string phone_):name(name_),phone(phone_){}
+private:
     int user_id;
     std::string name;
     std::string phone;
     std::string email;
     std::string address;
+    static int user_num;
+    std::string getUserIdINString();
+public:
+    int getUserId();
+    std::string getName();
+    std::string getPhone();
+    std::string getEmail();
+    std::string getAddress();
+    static int getNum();
+    void setName(std::string name);
+    void setEmail(std::string email);
+    void setPhone(std::string phone);
+    void setAddress(std::string address);
+    void setUserId(int user_id);
+    static void setNum(int);
     std::string to_string(){
         std::string result;
-        result=name+" "+phone+" "+email;
+        auto userID=getUserIdINString();
+        result=userID+"  "+name+"  "+phone+"  "+address+" "+email;
         return result;
     }
+    User(int , std::string , std::string , std::string , std::string );
+    User(std::string , std::string , std::string , std::string );
+    User(){}
     friend std::istream &operator>>(std::istream &in, User &right);
     friend std::ostream &operator<<(std::ostream &out, const User &right);
 };
+
+
+
 
 #endif //ADDRESS_BOOK_SYSTEM_USER_H

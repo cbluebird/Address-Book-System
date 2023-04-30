@@ -14,6 +14,8 @@ add_executable(Address_Book_System
         src/include/storage/BPlusTree.h
         src/include/executor/Table.h
         src/data/User.h
+        src/menu/Menu.h
+        src/data/Admin.h
 
         src/storage/Page.cpp
         src/buffer/BufferPoolManager.cpp
@@ -23,7 +25,7 @@ add_executable(Address_Book_System
         src/data/User.cpp
         src/include/disk/File.h
         src/disk/File.cpp
-        src/executor/Table.cpp
-
+        src/menu/Menu.cpp
+        src/data/Admin.cpp
         LICENSE
         README.md)

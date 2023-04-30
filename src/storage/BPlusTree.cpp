@@ -678,3 +678,29 @@ bool BPlusTree<ValueType, KeyType>::updateKey(KeyType origin, KeyType newKey, Va
     return true;
 }
 
+template<typename ValueType, typename KeyType>
+std::vector<ValueType> BPlusTree<ValueType, KeyType>::queryWithMatch(ValueType value,bool (*compare)(ValueType, ValueType)) {
+    std::vector<ValueType>answer;
+    if(root== nullptr)return answer;
+    Iterator<ValueType,KeyType>iterator= Iterator<ValueType,KeyType>(begin(),end());
+    while(iterator.getCur()!= nullptr) {
+        Node<KeyType>* node = iterator.getCur();
+        Page<ValueType,KeyType>* page=buffer_pool_manager->FetchPage(node->page_id);
+        for (int i = 0; i < node->size; i++) {
+            auto temp=page->getData(node->key[i]);
+            if(compare(value,temp)) {
+                answer.push_back(temp);
+            }
+        }
+        buffer_pool_manager->UnpinPage(node->page_id,true);
+        iterator.gotoNextNode();
+    }
+    return answer;
+}
+
+template<typename ValueType, typename KeyType>
+KeyType BPlusTree<ValueType, KeyType>::getEndKey() {
+    auto node =end();
+    return node->key[node->size-1];
+}
+

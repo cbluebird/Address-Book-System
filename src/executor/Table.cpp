@@ -4,6 +4,8 @@
 
 #include "src/include/executor/Table.h"
 
+std::shared_timed_mutex mutex_;
+
 template<typename ValueType, typename KeyType>
 Table<ValueType, KeyType>::~Table() {
     delete file;
@@ -12,8 +14,6 @@ Table<ValueType, KeyType>::~Table() {
 
 template<typename ValueType, typename KeyType>
 Table<ValueType, KeyType>::Table(const std::string &path, const std::string &fileType, KeyType(*key)(ValueType)) {
-    readLock=0;
-    writeLock=0;
     file=new File<ValueType,KeyType>(path,fileType);
     bPlusTree=new BPlusTree<ValueType,KeyType>;
     std::unordered_map<KeyType,ValueType>temp=file->init(key);
@@ -24,65 +24,68 @@ Table<ValueType, KeyType>::Table(const std::string &path, const std::string &fil
 }
 
 template<typename ValueType, typename KeyType>
-bool Table<ValueType, KeyType>::insert(KeyType key, ValueType value) {
-    if(readLock!=0||writeLock!=0)return false;
-    writeLock=1;
+void Table<ValueType, KeyType>::insert(KeyType key, ValueType value) {
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
     bPlusTree->insert(key,value);
     file->insert(value);
-    writeLock=0;
-    return true;
 }
 
 template<typename ValueType, typename KeyType>
 std::vector<ValueType> Table<ValueType, KeyType>::queryAll() {
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_,std::defer_lock);
     std::vector<ValueType>ans=bPlusTree->queryAll();
     return ans;
 }
 
 template<typename ValueType, typename KeyType>
-bool Table<ValueType, KeyType>::remove(KeyType key) {
-    if(readLock!=0||writeLock!=0)return false;
-    writeLock=1;
+void Table<ValueType, KeyType>::remove(KeyType key) {
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
     bPlusTree->remove(key);
     std::vector<ValueType>ans=bPlusTree->queryAll();
     file->update(ans);
-    writeLock=0;
-    return true;
 }
 
 
 template<typename ValueType, typename KeyType>
 ValueType *Table<ValueType, KeyType>::querySingleWithKey(const KeyType &key) const {
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_,std::defer_lock);
     auto ans=bPlusTree->querySingleWithKey(key);
     return ans;
 }
 
 template<typename ValueType, typename KeyType>
 ValueType *Table<ValueType, KeyType>::querySingleWithoutKey(const ValueType &value, bool (*key)(const ValueType, const ValueType)) const {
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_,std::defer_lock);
     auto ans=bPlusTree->querySingleWithoutKey(value,key);
     return ans;
 }
 
 template<typename ValueType, typename KeyType>
-bool Table<ValueType, KeyType>::updateWithoutKey(ValueType& value) {
-    if(readLock!=0||writeLock!=0)return false;
-    writeLock=1;
+void Table<ValueType, KeyType>::updateWithoutKey(ValueType& value) {
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
     auto key=getMajor(value);
     bPlusTree->updateWithoutKey(key, value);
     auto ans=bPlusTree->queryAll();
     file->update(ans);
-    writeLock=0;
-    return true;
 }
 
 template<typename ValueType, typename KeyType>
-bool Table<ValueType, KeyType>::updateKey(KeyType origin, ValueType& value) {
-    if(readLock!=0||writeLock!=0)return false;
-    writeLock=1;
+void Table<ValueType, KeyType>::updateKey(KeyType origin, ValueType& value) {
+    std::unique_lock<std::shared_timed_mutex> lock(mutex_);
     auto newKey=getMajor(value);
     bPlusTree->updateKey(origin,newKey,value);
     auto ans=bPlusTree->queryAll();
     file->update(ans);
-    writeLock=0;
-    return true;
+}
+
+template<typename ValueType, typename KeyType>
+std::vector<ValueType> Table<ValueType, KeyType>::queryWithMatch(ValueType value,bool (*compare)(ValueType,ValueType)) {
+    std::shared_lock<std::shared_timed_mutex> lock(mutex_,std::defer_lock);
+    auto ans=bPlusTree->queryWithMatch(value,compare);
+    return ans;
+}
+
+template<typename ValueType, typename KeyType>
+KeyType Table<ValueType, KeyType>::getEndKey() {
+    return bPlusTree->getEndKey();
 }

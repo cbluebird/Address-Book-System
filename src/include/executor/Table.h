@@ -9,29 +9,37 @@
 #include "src/disk/File.cpp"
 #include "src/include/storage/BPlusTree.h"
 #include "src/storage/BPlusTree.cpp"
+
+#include <shared_mutex>
+#include<mutex>
 #include<vector>
+#include<thread>
+
+
 
 //主要是集合对应的功能，提供相应的接口
 template<typename ValueType,typename KeyType>
 class Table {
     BPlusTree<ValueType,KeyType>*bPlusTree;
     File<ValueType,KeyType>*file;
-    int readLock;
-    int writeLock;
-    KeyType(*getMajor)(ValueType);
+
 public:
     Table(const std::string& path, const std::string& fileType, KeyType(*getMajor)(ValueType));
     ~Table();
-    bool insert(KeyType,ValueType);
+    KeyType(*getMajor)(ValueType);
 
-    bool remove(KeyType);
+    void insert(KeyType,ValueType);
+
+    void remove(KeyType);
 
     std::vector<ValueType>queryAll();
+    std::vector<ValueType>queryWithMatch(ValueType,bool(*)(ValueType,ValueType));
     ValueType* querySingleWithKey(const KeyType& ) const;
     ValueType* querySingleWithoutKey(const ValueType& ,bool(*)(const ValueType,const ValueType)) const;
+    KeyType getEndKey();
 
-    bool updateWithoutKey(ValueType&);
-    bool updateKey(KeyType,ValueType&);
+    void updateWithoutKey(ValueType&);
+    void updateKey(KeyType,ValueType&);
 };
 
 

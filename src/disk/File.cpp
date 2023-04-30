@@ -33,7 +33,7 @@ void File<ValueType, KeyType>::insert(ValueType value) {
         std::cout << "open error" << std::endl;
         return;
     }
-    out << std::endl << value;
+    out << value;
     out.close();
 }
 

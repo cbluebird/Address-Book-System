@@ -58,7 +58,9 @@ public:
     ValueType* querySingleWithKey(const KeyType& ) const;
     ValueType* querySingleWithoutKey(const ValueType& ,bool(*)(const ValueType,const ValueType));
     std::vector<ValueType> queryAll();
+    std::vector<ValueType> queryWithMatch(ValueType,bool(*)(ValueType,ValueType));
     Node<KeyType> *getRoot();
+    KeyType getEndKey();
 };
 
 
