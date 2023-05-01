@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 include_directories(.)
 
+
 add_executable(Address_Book_System
         src/main.cpp
 
@@ -15,6 +16,7 @@ add_executable(Address_Book_System
         src/include/executor/Table.h
         src/data/User.h
         src/menu/Menu.h
+        src/DiskManager.h
         src/data/Admin.h
 
         src/storage/Page.cpp
@@ -27,5 +29,7 @@ add_executable(Address_Book_System
         src/disk/File.cpp
         src/menu/Menu.cpp
         src/data/Admin.cpp
+        src/DiskManager.cpp
+
         LICENSE
         README.md)
