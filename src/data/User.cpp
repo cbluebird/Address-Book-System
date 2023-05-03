@@ -2,7 +2,7 @@
 // Created by crk on 23-4-29.
 //
 
-#include "User.h"
+#include "include/data/User.h"
 
 #include <utility>
 #include <regex>
@@ -26,7 +26,7 @@ std::istream &operator>>(std::istream &in, User &right) {
         std::cout <<"请输入" << right.name << "的电话号码（输入0代表为留空）：";
     }
     while (in >> phoneNum) {
-        if(right.phone=="0") {
+        if(phoneNum=="0") {
             right.phone= "";
             break;
         }
@@ -70,6 +70,64 @@ std::istream &operator>>(std::istream &in, User &right) {
             std::cout << "输入的邮箱地址格式非法，正确的样例为：123456@zjut.edu.cn，请重新输入：";
         }
     }
+
+    std::string sex;
+    if(typeid(in) == typeid(std::cin)) {
+        std::cout << "请输入" << right.name << "的性别（输入0代表为留空）：";
+    }
+    while (in >> sex) {
+        if(sex=="0"){
+            right.sex="";
+            break;
+        }
+        if (sex == "男" || sex == "女" || sex == "male" || sex == "female") {
+            right.setSex(sex);
+            break;
+        } else {
+            std::cout << "输入的性别格式非法，应该为'男'或'女'或'male'或'female'，请重新输入：";
+        }
+    }
+
+    std::string postalCode;
+    if(typeid(in) == typeid(std::cin)) {
+        std::cout << "请输入" << right.name << "的邮政编码（输入0代表为留空）：";
+    }
+    while (in >> postalCode) {
+        if (regex_match(postalCode, std::regex("^[0-9]{6}"))) {
+            right.setPostalCode(postalCode);
+            break;
+        } else if(postalCode == "0") {
+            right.setPostalCode("");
+            break;
+        } else {
+            std::cout << "输入的邮政编码格式非法，应该为6为纯数字，请重新输入：";
+        }
+    }
+
+    std::string QQNum;
+    if(typeid(in) == typeid(std::cin)) {
+        std::cout << "请输入" << right.name << "的QQ号（输入0代表为留空）：";
+    }
+    while (in >> QQNum) {
+        if (regex_match(QQNum, std::regex("[1-9][0-9]{4,}"))) {
+            right.setQQNum(QQNum);
+            break;
+        } else if (QQNum == "0") {
+            right.setQQNum("");
+            break;
+        } else {
+            std::cout << "输入的QQ号格式非法，应该为至少五位且首位非0的纯数字，请重新输入：";
+        }
+    }
+
+    std::string type;
+    if(typeid(in) == typeid(std::cin)) {
+        std::cout << "请输入" << right.name << "的类型（输入0代表为留空）：";
+    }
+    in >> right.type;
+    if(right.type=="0") {
+        right.type = "";
+    }
     return in;
 }
 
@@ -79,7 +137,11 @@ std::ostream &operator<<(std::ostream &out, const User &right) {
             << "姓名:" << right.name << '\n'
             << "电话:" << right.phone<< "\n"
             << "地址:" << right.address<< '\n'
-            <<"邮箱:"<< right.email<< '\n';
+            << "邮箱:" << right.email<< '\n'
+            << "性别:" << right.sex << '\n'
+            << "邮政编码:" << right.postalCode << '\n'
+            << "QQ号:" << right.QQNum << '\n'
+            << "类型:" << right.type<<std::endl;
     } else {
 //        out << right.user_id;
 //        out<<" "<<right.name;
@@ -106,6 +168,21 @@ std::ostream &operator<<(std::ostream &out, const User &right) {
             out << "0" << " ";
         } else {
             out << right.email << " ";
+        }
+        out<<right.sex << " ";
+        if(right.postalCode.empty()) {
+            out << "0" << " ";
+        } else {
+            out << right.postalCode << " ";
+        }
+        if(right.QQNum.empty()) {
+            out << "0" << " ";
+        } else {
+            out << right.QQNum << " ";
+        }if(right.type.empty()) {
+            out << "0";
+        } else {
+            out << right.type;
         }
     }
     return out;
@@ -182,6 +259,38 @@ std::string User::getUserIdINString() {
 
 void User::setUserId(int user_id) {
     this->user_id=user_id;
+}
+
+std::string User::getSex() {
+    return sex;
+}
+
+std::string User::getPostalCode() {
+    return postalCode;
+}
+
+std::string User::getQQNum() {
+    return QQNum;
+}
+
+std::string User::getType() {
+    return type;
+}
+
+void User::setSex(std::string sex) {
+    this->sex = sex;
+}
+
+void User::setPostalCode(std::string postalCode) {
+    this->postalCode = postalCode;
+}
+
+void User::setQQNum(std::string QQNum) {
+    this->QQNum = QQNum;
+}
+
+void User::setType(std::string type) {
+    this->type = type;
 }
 
 

@@ -2,11 +2,11 @@
 // Created by crk on 23-4-25.
 //
 
-#include"src/include/executor/Table.h"
+#include"include/executor/Table.h"
 #include"src/executor/Table.cpp"
-#include "src/data/User.h"
-#include "src/menu/Menu.h"
-#include "src/data/Admin.h"
+#include "include/data/User.h"
+#include "include/menu/Menu.h"
+#include "include/data/Admin.h"
 
 int main(){
     Menu menu;
@@ -137,6 +137,26 @@ int main(){
                                     std::cout<<*ans<<std::endl;
                                     break;
                                 }
+                                case 6: {
+                                    menu.cutRule();
+                                    std::cout<<"请输入查询的类别: ";
+                                    User user;
+                                    std::string l;
+                                    std::cin>>l;
+                                    user.setType(l);
+                                    auto ans=userDB.queryWithMatch(user,[](User user1,User user2){
+                                        if(user1.getType()==user2.getType())return true;
+                                        else return false;
+                                    });
+                                    if(ans.size()==0){
+                                        std::cout<<"输入的类别不存在"<<std::endl;
+                                        break;
+                                    }
+                                    for(int i=0;i<ans.size();i++){
+                                        std::cout<<ans[i]<<std::endl;
+                                    }
+                                    break;
+                                }
                                 case 0:{
                                     flag=0;
                                     break;
@@ -198,6 +218,10 @@ int main(){
                             if(update_user.getPhone()=="")update_user.setPhone(user.getPhone());
                             if(update_user.getAddress()=="")update_user.setAddress(user.getAddress());
                             if(update_user.getEmail()=="")update_user.setEmail(user.getEmail());
+                            if(update_user.getQQNum()=="")update_user.setQQNum(user.getQQNum());
+                            if(update_user.getPostalCode()=="")update_user.setPostalCode(user.getPostalCode());
+                            if(update_user.getSex()=="")update_user.setSex(user.getSex());
+                            if(update_user.getType()=="")update_user.setType(user.getType());
                             userDB.updateWithoutKey(update_user);
                         }else if(typeNum_==2){
                             std::cout<<"请选择你要更新的用户信息的编号:";
@@ -218,6 +242,59 @@ int main(){
                             if(update_user.getPhone()=="")update_user.setPhone(user->getPhone());
                             if(update_user.getAddress()=="")update_user.setAddress(user->getAddress());
                             if(update_user.getEmail()=="")update_user.setEmail(user->getEmail());
+                            if(update_user.getQQNum()=="")update_user.setQQNum(user->getQQNum());
+                            if(update_user.getPostalCode()=="")update_user.setPostalCode(user->getPostalCode());
+                            if(update_user.getSex()=="")update_user.setSex(user->getSex());
+                            if(update_user.getType()=="")update_user.setType(user->getType());
+                            userDB.updateWithoutKey(update_user);
+                        }else if(typeNum_==3){
+                            menu.cutRule();
+                            std::cout<<"请输入需要更新的电话：";
+                            std::string phone;
+                            std::cin>>phone;
+                            User user;
+                            user.setPhone(phone);
+                            auto ans=userDB.queryWithMatch(user,[](User user1,User user2){
+                                if(user1.getPhone()==user2.getPhone())return true;
+                                else return false;
+                            });
+                            if(ans.size()==0){
+                                std::cout<<"输入的电话不存在"<<std::endl;
+                                break;
+                            }
+                            for(int i=0;i<ans.size();i++){
+                                std::cout<<ans[i]<<std::endl;
+                            }
+                            if(ans.size()==0){
+                                std::cout<<"该用户不存在"<<std::endl;
+                                break;
+                            }
+                            std::cout<<"请选择你要更新的用户信息的编号:";
+                            int user_id;
+                            std::cin>>user_id;
+                            int flag=1;
+                            for(int i=0;i<ans.size()&&flag;i++){
+                                if(ans[i].getUserId()==user_id){
+                                    user=ans[i];
+                                    flag=0;
+                                }
+                            }
+                            if(flag){
+                                menu.error();
+                                break;
+                            }
+                            User update_user;
+                            update_user.setUserId(user_id);
+                            std::cout<<"请输入你要更新的用户信息：";
+                            std::cin>>update_user;
+                            if(update_user.getName()=="")update_user.setName(user.getName());
+                            if(update_user.getPhone()=="")update_user.setPhone(user.getPhone());
+                            if(update_user.getAddress()=="")update_user.setAddress(user.getAddress());
+                            if(update_user.getEmail()=="")update_user.setEmail(user.getEmail());
+                            if(update_user.getQQNum()=="")update_user.setQQNum(user.getQQNum());
+                            if(update_user.getPostalCode()=="")update_user.setPostalCode(user.getPostalCode());
+                            if(update_user.getSex()=="")update_user.setSex(user.getSex());
+                            if(update_user.getType()=="")update_user.setType(user.getType());
                             userDB.updateWithoutKey(update_user);
                         }else{
                             menu.error();
@@ -288,8 +365,139 @@ int main(){
                                 userDB.remove(user_id);
                             }
                             break;
+                        }else if(typeNum_==3){
+                            menu.cutRule();
+                            std::cout<<"请输入需要删除的电话：";
+                            std::string phone;
+                            std::cin>>phone;
+                            User user;
+                            user.setPhone(phone);
+                            auto ans=userDB.queryWithMatch(user,[](User user1,User user2){
+                                if(user1.getPhone()==user2.getPhone())return true;
+                                else return false;
+                            });
+                            if(ans.size()==0){
+                                std::cout<<"输入电话不存在"<<std::endl;
+                                break;
+                            }
+                            for(int i=0;i<ans.size();i++){
+                                std::cout<<ans[i]<<std::endl;
+                            }
+                            if(ans.size()==0){
+                                menu.error();
+                                break;
+                            }
+                            std::cout<<"请选择你要删除的用户信息的编号:"<<std::endl;
+                            int user_id;
+                            std::cin>>user_id;
+                            int flag=1;
+                            for(int i=0;i<ans.size()&&flag;i++){
+                                if(ans[i].getUserId()==user_id){
+                                    flag=0;
+                                }
+                            }
+                            if(flag){
+                                menu.error();
+                                break;
+                            }
+                            menu.cutRule();
+                            std::cout<<"确定要删除该用户信息吗，确定请输入1,取消选择2"<<std::endl<<">";
+                            std::cin>>flag;
+                            if(flag==1){
+                                userDB.remove(user_id);
+                            }
+                            break;
                         }else{
                             menu.error();
+                        }
+                        break;
+                    }
+                    case 5:{
+                        int flag=1;
+                        int typeNum_=0;
+                        menu.displaySortUser();
+                        while(flag&&std::cin>>typeNum_) {
+                            switch (typeNum_) {
+                                case 1: {
+                                    auto ans = userDB.queryWithSort([](User user1, User user2) {
+                                        if (user1.getName() < user2.getName())return true;
+                                        else return false;
+                                    });
+                                    for (int i = 0; i < ans.size(); i++) {
+                                        std::cout << ans[i] << std::endl;
+                                    }
+                                    break;
+                                }
+                                case 2: {
+                                    auto ans = userDB.queryWithSort([](User user1, User user2) {
+                                        if (user1.getSex() < user2.getSex())return true;
+                                        else return false;
+                                    });
+                                    for (int i = 0; i < ans.size(); i++) {
+                                        std::cout << ans[i] << std::endl;
+                                    }
+                                    break;
+                                }
+                                case 3: {
+                                    auto ans = userDB.queryWithSort([](User user1, User user2) {
+                                        if (user1.getPhone() < user2.getPhone())return true;
+                                        else return false;
+                                    });
+                                    for (int i = 0; i < ans.size(); i++) {
+                                        std::cout << ans[i] << std::endl;
+                                    }
+                                    break;
+                                }
+                                case 4: {
+                                    auto ans = userDB.queryWithSort([](User user1, User user2) {
+                                        if (user1.getPostalCode() < user2.getPostalCode())return true;
+                                        else return false;
+                                    });
+                                    for (int i = 0; i < ans.size(); i++) {
+                                        std::cout << ans[i] << std::endl;
+                                    }
+                                    break;
+                                }
+                                case 5: {
+                                    auto ans = userDB.queryWithSort([](User user1, User user2) {
+                                        if (user1.getEmail() < user2.getEmail())return true;
+                                        else return false;
+                                    });
+                                    for (int i = 0; i < ans.size(); i++) {
+                                        std::cout << ans[i] << std::endl;
+                                    }
+                                    break;
+                                }
+                                case 6: {
+                                    auto ans = userDB.queryWithSort([](User user1, User user2) {
+                                        if (user1.getQQNum() < user2.getQQNum())return true;
+                                        else return false;
+                                    });
+                                    for (int i = 0; i < ans.size(); i++) {
+                                        std::cout << ans[i] << std::endl;
+                                    }
+                                    break;
+                                }
+                                case 7: {
+                                    auto ans = userDB.queryWithSort([](User user1, User user2) {
+                                        if (user1.getType() < user2.getType())return true;
+                                        else return false;
+                                    });
+                                    for (int i = 0; i < ans.size(); i++) {
+                                        std::cout << ans[i] << std::endl;
+                                    }
+                                    break;
+                                }
+                                case 0: {
+                                    flag=0;
+                                    break;
+                                }
+                                default: {
+                                    menu.error();
+                                    break;
+                                }
+                            }
+                            if(flag)menu.displaySortUser();
                         }
                         break;
                     }
@@ -302,7 +510,6 @@ int main(){
                         menu.error();
                         break;
                     }
-
                 }
                 if(flagMain)menu.displayAdminMainMenu();
             }
@@ -414,6 +621,95 @@ int main(){
                         }
                         break;
                     }
+                    case 2:{
+                        int flag=1;
+                        int typeNum_=0;
+                        menu.displaySortUser();
+                        while(flag&&std::cin>>typeNum_) {
+                            switch (typeNum_) {
+                                case 1: {
+                                    auto ans = userDB.queryWithSort([](User user1, User user2) {
+                                        if (user1.getName() < user2.getName())return true;
+                                        else return false;
+                                    });
+                                    for (int i = 0; i < ans.size(); i++) {
+                                        std::cout << ans[i] << std::endl;
+                                    }
+                                    break;
+                                }
+                                case 2: {
+                                    auto ans = userDB.queryWithSort([](User user1, User user2) {
+                                        if (user1.getSex() < user2.getSex())return true;
+                                        else return false;
+                                    });
+                                    for (int i = 0; i < ans.size(); i++) {
+                                        std::cout << ans[i] << std::endl;
+                                    }
+                                    break;
+                                }
+                                case 3: {
+                                    auto ans = userDB.queryWithSort([](User user1, User user2) {
+                                        if (user1.getPhone() < user2.getPhone())return true;
+                                        else return false;
+                                    });
+                                    for (int i = 0; i < ans.size(); i++) {
+                                        std::cout << ans[i] << std::endl;
+                                    }
+                                    break;
+                                }
+                                case 4: {
+                                    auto ans = userDB.queryWithSort([](User user1, User user2) {
+                                        if (user1.getPostalCode() < user2.getPostalCode())return true;
+                                        else return false;
+                                    });
+                                    for (int i = 0; i < ans.size(); i++) {
+                                        std::cout << ans[i] << std::endl;
+                                    }
+                                    break;
+                                }
+                                case 5: {
+                                    auto ans = userDB.queryWithSort([](User user1, User user2) {
+                                        if (user1.getEmail() < user2.getEmail())return true;
+                                        else return false;
+                                    });
+                                    for (int i = 0; i < ans.size(); i++) {
+                                        std::cout << ans[i] << std::endl;
+                                    }
+                                    break;
+                                }
+                                case 6: {
+                                    auto ans = userDB.queryWithSort([](User user1, User user2) {
+                                        if (user1.getQQNum() < user2.getQQNum())return true;
+                                        else return false;
+                                    });
+                                    for (int i = 0; i < ans.size(); i++) {
+                                        std::cout << ans[i] << std::endl;
+                                    }
+                                    break;
+                                }
+                                case 7: {
+                                    auto ans = userDB.queryWithSort([](User user1, User user2) {
+                                        if (user1.getType() < user2.getType())return true;
+                                        else return false;
+                                    });
+                                    for (int i = 0; i < ans.size(); i++) {
+                                        std::cout << ans[i] << std::endl;
+                                    }
+                                    break;
+                                }
+                                case 0: {
+                                    flag=0;
+                                    break;
+                                }
+                                default: {
+                                    menu.error();
+                                    break;
+                                }
+                            }
+                            if(flag)menu.displaySortUser();
+                        }
+                        break;
+                    }
                     case 0: {
                         flagMain=false;
                         flagMain_ = false;
@@ -423,7 +719,6 @@ int main(){
                         menu.error();
                         break;
                     }
-
                 }
                 if(flagMain)menu.displayUserMainMenu();
             }

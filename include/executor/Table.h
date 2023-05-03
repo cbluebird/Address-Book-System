@@ -5,9 +5,9 @@
 #ifndef ADDRESS_BOOK_SYSTEM_TABLE_H
 #define ADDRESS_BOOK_SYSTEM_TABLE_H
 
-#include "src/include/disk/File.h"
+#include "include/disk/File.h"
 #include "src/disk/File.cpp"
-#include "src/include/storage/BPlusTree.h"
+#include "include/storage/BPlusTree.h"
 #include "src/storage/BPlusTree.cpp"
 
 #include <shared_mutex>
@@ -40,6 +40,8 @@ public:
 
     void updateWithoutKey(ValueType&);
     void updateKey(KeyType,ValueType&);
+
+    std::vector<ValueType> queryWithSort(bool (*cp)(ValueType, ValueType));
 };
 
 

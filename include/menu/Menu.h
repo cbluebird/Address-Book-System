@@ -18,6 +18,8 @@ public:
     void error();
 
     void cutRule();
+
+    void displaySortUser();
 };
 
 

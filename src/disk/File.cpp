@@ -2,7 +2,7 @@
 // Created by crk on 23-4-29.
 //
 
-#include "src/include/disk/File.h"
+#include "include/disk/File.h"
 #include<iostream>
 
 template<typename ValueType, typename KeyType>
@@ -33,7 +33,7 @@ void File<ValueType, KeyType>::insert(ValueType value) {
         std::cout << "open error" << std::endl;
         return;
     }
-    out << value;
+    out << std::endl<<value;
     out.close();
 }
 

@@ -2,7 +2,7 @@
 // Created by crk on 23-4-29.
 //
 
-#include "src/include/executor/Table.h"
+#include "include/executor/Table.h"
 
 std::shared_timed_mutex mutex_;
 
@@ -88,4 +88,19 @@ std::vector<ValueType> Table<ValueType, KeyType>::queryWithMatch(ValueType value
 template<typename ValueType, typename KeyType>
 KeyType Table<ValueType, KeyType>::getEndKey() {
     return bPlusTree->getEndKey();
+}
+
+template<typename ValueType, typename KeyType>std::vector<ValueType> Table<ValueType, KeyType>::queryWithSort(bool(*cp)(ValueType value1,ValueType value2)) {    std::shared_lock<std::shared_timed_mutex> lock(mutex_,std::defer_lock);
+    auto ans=bPlusTree->queryAll();
+    for(int i=0;i<ans.size()-1;i++) {
+        int k=i;
+        for(int j=i+1;j<ans.size();j++){
+            if(cp(ans[j],ans[k]))
+                k=j;
+        }
+        ValueType temp=ans[i];
+        ans[i]=ans[k];
+        ans[k]=temp;
+    }
+    return ans;
 }

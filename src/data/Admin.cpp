@@ -2,7 +2,7 @@
 // Created by crk on 23-4-30.
 //
 
-#include "Admin.h"
+#include "include/data/Admin.h"
 
 Admin::Admin(std::string path, std::string type): path(path), type(type){
 }
