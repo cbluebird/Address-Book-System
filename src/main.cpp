@@ -307,7 +307,7 @@ int main(){
                         std::cin>>typeNum_;
                         if(typeNum_==1){
                             menu.cutRule();
-                            std::cout<<"请输入需要更新的姓名：";
+                            std::cout<<"请输入需要删除的姓名：";
                             std::string name;
                             std::cin>>name;
                             User user;
